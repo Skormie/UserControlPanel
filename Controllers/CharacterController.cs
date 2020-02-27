@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PagedList;
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -16,9 +17,43 @@ namespace UserControlPanel.Controllers
         private CPContext db = new CPContext();
 
         // GET: Character
-        public ActionResult Index()
+        public ActionResult Index(string sortOrder, string currentFilter, string searchString, int? page)
         {
-            return View(db.Character.ToList());
+            //ViewBag.NameSortParm = String.IsNullOrEmpty(sortOrder) ? "Name" : "";
+            //ViewBag.NameSortParm = sortOrder == "Level" ? "Class" : "Level";
+            ViewBag.CurrentSort = sortOrder;
+
+            if (searchString != null)
+                page = 1;
+            else
+                searchString = currentFilter;
+
+            ViewBag.CurrentFilter = searchString;
+
+            var characters = from s in db.Character select s;
+
+            if (!String.IsNullOrEmpty(searchString))
+                characters = characters.Where(s => s.Name.Contains(searchString) || s.Class.ToString().Contains(searchString));
+
+            switch (sortOrder)
+            {
+                case "Name":
+                    characters = characters.OrderByDescending(s=> s.Name);
+                    break;
+                case "Level":
+                    characters = characters.OrderByDescending(s => s.Level);
+                    break;
+                case "Class":
+                    characters = characters.OrderBy(s => s.Class);
+                    break;
+                default:
+                    characters = characters.OrderBy(s => s.ID);
+                    break;
+            }
+
+            int pageSize = 3;
+            int pageNumber = (page ?? 1);
+            return View(/*db.Character.ToList()*/ /*characters.ToList()*/ characters.ToPagedList(pageNumber, pageSize));
         }
 
         // GET: Character/Details/5
@@ -49,11 +84,18 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "ID,LoginID,Name,Level,Class,Experience,Next,CharacterCreationDate")] Character character)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Character.Add(character);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Character.Add(character);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("","Unable to save changes. Please try something different.");
             }
 
             return View(character);
@@ -81,11 +123,18 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "ID,LoginID,Name,Level,Class,Experience,Next,CharacterCreationDate")] Character character)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Entry(character).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Entry(character).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("","Unable to save changes. Please try something different.");
             }
             return View(character);
         }
@@ -110,9 +159,16 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Character character = db.Character.Find(id);
-            db.Character.Remove(character);
-            db.SaveChanges();
+            try
+            {
+                Character character = db.Character.Find(id);
+                db.Character.Remove(character);
+                db.SaveChanges();
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("","Unable to save changes. Please try something different.");
+            }
             return RedirectToAction("Index");
         }
 

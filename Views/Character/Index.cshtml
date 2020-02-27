@@ -1,36 +1,47 @@
-﻿@model IEnumerable<UserControlPanel.Models.Character>
+﻿@using PagedList.Mvc;
+@model PagedList.IPagedList<UserControlPanel.Models.Character>
 
 @{
     ViewBag.Title = "Index";
 }
-
+    <link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
 <h2>Index</h2>
 
 <p>
     @Html.ActionLink("Create New", "Create")
 </p>
+@using (Html.BeginForm("Index", "Character", FormMethod.Get))
+{
+<p>
+    Filter Name/Class: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+    <input type="submit" name="Filter" value="Filter" />
+</p>
+}
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.LoginID)
+            @Html.DisplayName("Login ID")
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Name)
+            @*@Html.DisplayNameFor(model => model.Name)*@
+            @Html.ActionLink("Name", "Index", new { sortOrder = "Name", currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Level)
+            @*@Html.DisplayNameFor(model => model.Level)*@
+            @Html.ActionLink("Level", "Index", new { sortOrder = "Level", currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Class)
+            @*@Html.DisplayNameFor(model => model.Class)*@
+            @Html.ActionLink("Class", "Index", new { sortOrder = "Class", currentFilter = ViewBag.CurrentFilter })
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Experience)
+            @Html.DisplayName("Experience")
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.Next)
+            @Html.DisplayName("Next")
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.CharacterCreationDate)
+            @Html.DisplayName("CharacterCreationDate")
         </th>
         <th></th>
     </tr>
@@ -67,3 +78,5 @@
 }
 
 </table>
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+@Html.PagedListPager(Model, page => Url.Action("Index", new { page}))

@@ -52,11 +52,18 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "CharacterID,ItemID,Quantity")] Inventory inventory)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Inventory.Add(inventory);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Inventory.Add(inventory);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different. (Player probably already has an index of that item.)");
             }
 
             ViewBag.CharacterID = new SelectList(db.Character, "ID", "Name", inventory.CharacterID);
@@ -88,11 +95,18 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "CharacterID,ItemID,Quantity")] Inventory inventory)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Entry(inventory).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Entry(inventory).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different.");
             }
             ViewBag.CharacterID = new SelectList(db.Character, "ID", "Name", inventory.CharacterID);
             ViewBag.ItemID = new SelectList(db.Item, "ID", "Name", inventory.ItemID);
@@ -119,9 +133,16 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Inventory inventory = db.Inventory.Find(id);
-            db.Inventory.Remove(inventory);
-            db.SaveChanges();
+            try
+            {
+                Inventory inventory = db.Inventory.Find(id);
+                db.Inventory.Remove(inventory);
+                db.SaveChanges();
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different.");
+            }
             return RedirectToAction("Index");
         }
 

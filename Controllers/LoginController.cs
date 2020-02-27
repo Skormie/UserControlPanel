@@ -49,11 +49,18 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "ID,Username,Password,LastLogin,AccountCreationDate")] Login login)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Login.Add(login);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Login.Add(login);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different.");
             }
 
             return View(login);
@@ -81,11 +88,18 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "ID,Username,Password,LastLogin,AccountCreationDate")] Login login)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Entry(login).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Entry(login).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different.");
             }
             return View(login);
         }
@@ -110,9 +124,16 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Login login = db.Login.Find(id);
-            db.Login.Remove(login);
-            db.SaveChanges();
+            try
+            {
+                Login login = db.Login.Find(id);
+                db.Login.Remove(login);
+                db.SaveChanges();
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different.");
+            }
             return RedirectToAction("Index");
         }
 

@@ -49,11 +49,18 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Include = "ID,Name,Image,Description")] Item item)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Item.Add(item);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Item.Add(item);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (Exception)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different.");
             }
 
             return View(item);
@@ -81,11 +88,18 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Include = "ID,Name,Image,Description")] Item item)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Entry(item).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Entry(item).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different.");
             }
             return View(item);
         }
@@ -110,9 +124,16 @@ namespace UserControlPanel.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(int id)
         {
-            Item item = db.Item.Find(id);
-            db.Item.Remove(item);
-            db.SaveChanges();
+            try
+            {
+                Item item = db.Item.Find(id);
+                db.Item.Remove(item);
+                db.SaveChanges();
+            }
+            catch (DataException)
+            {
+                ModelState.AddModelError("", "Unable to save changes. Please try something different.");
+            }
             return RedirectToAction("Index");
         }
 
