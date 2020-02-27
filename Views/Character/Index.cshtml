@@ -17,7 +17,7 @@
     <input type="submit" name="Filter" value="Filter" />
 </p>
 }
-<table class="table">
+<table class="table table-bordered">
     <tr>
         <th>
             @Html.DisplayName("Login ID")
@@ -49,15 +49,60 @@
 @foreach (var item in Model) {
     <tr>
         <td>
-            @Html.DisplayFor(modelItem => item.LoginID)
+            <div class="text-info">
+                <i class="fas fa-khanda"></i> @Html.DisplayFor(modelItem => item.LoginID)
+            </div>
         </td>
         <td>
-            @Html.DisplayFor(modelItem => item.Name)
+            <div class="text-success">
+                @Html.DisplayFor(modelItem => item.Name)
+            </div>
         </td>
         <td>
             @Html.DisplayFor(modelItem => item.Level)
         </td>
         <td>
+            @switch (item.Class)
+            {
+                case UserControlPanel.Models.Job.SWORDMAN:
+                    <i class="fab fa-galactic-senate"></i>
+                    break;
+                case UserControlPanel.Models.Job.WIZARD:
+                    <i class="fab fa-phoenix-squadron"></i>
+                    break;
+                case UserControlPanel.Models.Job.SAGE:
+                    <i class="fas fa-journal-whills"></i>
+                    break;
+                case UserControlPanel.Models.Job.PROFFESSOR:
+                    <i class="fas fa-book-dead"></i>
+                    break;
+                case UserControlPanel.Models.Job.SNIPER:
+                    <i class="fas fa-location-arrow"></i>
+                    break;
+                case UserControlPanel.Models.Job.CHAMPION:
+                    <i class="fas fa-gopuram"></i>
+                    break;
+                case UserControlPanel.Models.Job.THEIF:
+                    <i class="fas fa-eye"></i>
+                    break;
+                case UserControlPanel.Models.Job.ASSASSIN:
+                    <i class="far fa-eye"></i>
+                    break;
+                case UserControlPanel.Models.Job.PALADIN:
+                    <i class="fas fa-chess-rook"></i>
+                    break;
+                case UserControlPanel.Models.Job.ACOLYTE:
+                    <i class="fas fa-book-medical"></i>
+                    break;
+                case UserControlPanel.Models.Job.PREIST:
+                    <i class="fas fa-quran"></i>
+                    break;
+                case UserControlPanel.Models.Job.MONK:
+                    <i class="fas fa-torah"></i>
+                    break;
+                default:
+                    break;
+            }
             @Html.DisplayFor(modelItem => item.Class)
         </td>
         <td>
